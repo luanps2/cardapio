@@ -553,3 +553,15 @@ justify-content: center;
     overflow-x: hidden;
 }
 
+.etapas {
+    display: flex;
+}
+
+.etapa {
+    width: 35px;
+    height: 35px;
+    background-color: var(--color-white);
+    border-radius: 50px;
+    /* box-shadow: ; */
+}
+

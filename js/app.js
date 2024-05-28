@@ -15,22 +15,36 @@ cardapio.eventos = {
 cardapio.metodos = {
 
     // obtem a lista de itens do cardápio
-    obterItensCardapio: (categoria = 'burgers') => {
+    obterItensCardapio: (categoria = 'burgers', vermais = false) => {
 
         var filtro = MENU[categoria];
         console.log(filtro);
 
-        $("#itensCardapio").html('')
+        if (!vermais) {
+            $("#itensCardapio").html('');
+            $("#btnVerMais").removeClass('hidden');
+        }
+
+
 
         $.each(filtro, (i, e) => {
 
             console.log(e.name)
 
             let template = cardapio.templates.item.replace(/\${img}/g, e.img)
-            .replace(/\${nome}/g, e.name)
-            .replace(/\${preco}/g, e.price.toFixed(2).replace('.',','));
-            $("#itensCardapio").append(template);   
+                .replace(/\${nome}/g, e.name)
+                .replace(/\${preco}/g, e.price.toFixed(2).replace('.', ','))
+                .replace(/\${id}/g, e.id);
 
+            //Botão ver mais foi clicado (12 itens)
+            if (vermais && i >= 8 && i <= 12) {
+                $("#itensCardapio").append(template);
+            }
+
+            //paginação inicial (8 itens)
+            if (!vermais && i < 8) {
+                $("#itensCardapio").append(template)
+            }
         })
 
         //remover o item ativa
@@ -38,15 +52,31 @@ cardapio.metodos = {
 
         //seta o menu para ativa
         $("#menu-" + categoria).addClass('active')
+    },
+
+    //clique no botão de ver mais
+    verMais: () => {
+        var ativo = $(".container-menu a.active").attr('id').split('menu-')[1];
+        cardapio.metodos.obterItensCardapio(ativo, true);
+
+        $("#btnVerMais").addClass('hidden');
+    },
+
+    // diminui a quantidade do item no cardapio
+    diminuirQuantidade: () => {
 
     },
+    // aumenta a quantidade do item no cardapio
+    aumentarQuantidade: () => {
+
+    }
 }
 
 cardapio.templates = {
 
     item: `
     <div class="col-3 mb-5">
-                            <div class="card card-item">
+                            <div class="card card-item" id="\${id}">
                                 <div class="img-produto">
                                     <img src="\${img}" alt=""/ >
                                 </div>

@@ -3,6 +3,7 @@ $(document).ready(function () {
 })
 
 var cardapio = {};
+var MEU_CARRINHO = [];
 
 cardapio.eventos = {
 
@@ -63,19 +64,35 @@ cardapio.metodos = {
     },
 
     // diminui a quantidade do item no cardapio
-    diminuirQuantidade: () => {
+    diminuirQuantidade: (id) => {
+        let qtdAtual = parseInt($("#qtd-" + id).text());
 
+        if (qtdAtual > 0) {
+            $("#qtd-" + id).text(qtdAtual - 1)
+        }
     },
     // aumenta a quantidade do item no cardapio
-    aumentarQuantidade: () => {
+    aumentarQuantidade: (id) => {
+        let qtdAtual = parseInt($("#qtd-" + id).text());
+        $("#qtd-" + id).text(qtdAtual + 1)
+    },
 
-    }
+    // adicionar ao cainho o item do cardapio
+    adicionarAoCarrinho: (id) => {
+        let qtdAtual = parseInt($("#qtd-" + id).text());
+        if (qtdAtual > 0) {
+            //obter a categoria ativa
+            var categoria = $(".container-menu a.active").attr('id').split('menu-')[1];
+
+            let filtro = MENU[categoria];
+        }
+    },
 }
 
 cardapio.templates = {
 
     item: `
-    <div class="col-3 mb-5">
+                        <div class="col-3 mb-5">
                             <div class="card card-item" id="\${id}">
                                 <div class="img-produto">
                                     <img src="\${img}" alt=""/ >
@@ -87,10 +104,10 @@ cardapio.templates = {
                                     <b>R$ \${preco}</b>
                                 </p>
                                 <div class="add-carrinho">
-                                    <span class="btn-menos"><i class="fa fa-minus"></i></span>
-                                    <span class="add-numero-itens">0</span>
-                                    <span class="btn-mais"><i class="fa fa-plus"></i></span>
-                                    <span class="btn btn-add"><i class="fa fa-shopping-bag"></i></span>
+                                    <span class="btn-menos" onclick="cardapio.metodos.diminuirQuantidade('\${id}')"><i class="fa fa-minus"></i></span>
+                                    <span class="add-numero-itens" id="qtd-\${id}">0</span>
+                                    <span class="btn-mais" onclick="cardapio.metodos.aumentarQuantidade('\${id}')"><i class="fa fa-plus"></i></span>
+                                    <span class="btn btn-add" onclick="cardapio.metodos.adicionarAoCarrinho('\${id}')"><i class="fa fa-shopping-bag"></i></span>
                                 </div>
 
 

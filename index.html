@@ -7,10 +7,20 @@
     <title>Restaurante - Seja Bem Vindo!</title>
     <link rel="stylesheet" href="./css/bootstrap.min.css">
     <link rel="stylesheet" href="./css/fontawesome.css">
+    <link rel="stylesheet" href="./css/animate.css">
     <link rel="stylesheet" href="./css/main.css">
 </head>
 
 <body>
+
+    <div class="container-mensagens" id="container-mensagens">
+
+    </div>
+
+    <a class="botao-carrinho hidden" onclick="cardapio.metodos.abrirCarrinho(true)">
+        <div class="badge-total-carrinho">0</div>
+        <i class="fa fa-shopping-bag "></i>
+    </a>
 
     <section class="header">
         <div class="container">
@@ -40,9 +50,9 @@
                             <a href="#depoimentos" class="nav-link"><b>Depoimentos</b></a>
                         </li>
                     </ul>
-                    <a class="btn btn-white btn-icon">
-                        Meu carrinho
-                        <span class="icon">
+                    <a class="btn btn-white btn-icon" onclick="cardapio.metodos.abrirCarrinho(true)">
+                        Meu carrinho <span class="icon">
+                        <div class="container-total-carrinho badge-total-carrinho hidden">0</div>  
                             <i class="fa fa-shopping-bag"></i>
                         </span>
                     </a>
@@ -175,22 +185,28 @@
                 </div>
 
                 <div class="col-12 container-menu text-center">
-                    <a id="menu-burgers" class="btn btn-white btn-sm mr-3 active" onclick="cardapio.metodos.obterItensCardapio('burgers')">
+                    <a id="menu-burgers" class="btn btn-white btn-sm mr-3 active"
+                        onclick="cardapio.metodos.obterItensCardapio('burgers')">
                         <i class="fas fa-hamburger "></i>&nbsp; Burgers
                     </a>
-                    <a id="menu-pizzas" class="btn btn-white btn-sm mr-3" onclick="cardapio.metodos.obterItensCardapio('pizzas')">
+                    <a id="menu-pizzas" class="btn btn-white btn-sm mr-3"
+                        onclick="cardapio.metodos.obterItensCardapio('pizzas')">
                         <i class="fas fa-pizza-slice"></i>&nbsp; Pizzas
                     </a>
-                    <a id="menu-churrasco" class="btn btn-white btn-sm mr-3" onclick="cardapio.metodos.obterItensCardapio('churrasco')">
+                    <a id="menu-churrasco" class="btn btn-white btn-sm mr-3"
+                        onclick="cardapio.metodos.obterItensCardapio('churrasco')">
                         <i class="fas fa-drumstick-bite "></i>&nbsp; Churrasco
                     </a>
-                    <a id="menu-steaks" class="btn btn-white btn-sm mr-3" onclick="cardapio.metodos.obterItensCardapio('steaks')">
+                    <a id="menu-steaks" class="btn btn-white btn-sm mr-3"
+                        onclick="cardapio.metodos.obterItensCardapio('steaks')">
                         <i class="fas fa-bacon"></i>&nbsp; Steaks
                     </a>
-                    <a id="menu-bebidas" class="btn btn-white btn-sm mr-3" onclick="cardapio.metodos.obterItensCardapio('bebidas')">
+                    <a id="menu-bebidas" class="btn btn-white btn-sm mr-3"
+                        onclick="cardapio.metodos.obterItensCardapio('bebidas')">
                         <i class="fas fa-cocktail"></i>&nbsp; Bebidas
                     </a>
-                    <a id="menu-sobremesas" class="btn btn-white btn-sm mr-3" onclick="cardapio.metodos.obterItensCardapio('sobremesas')">
+                    <a id="menu-sobremesas" class="btn btn-white btn-sm mr-3"
+                        onclick="cardapio.metodos.obterItensCardapio('sobremesas')">
                         <i class="fas fa-ice-cream"></i>&nbsp; Sobremesas
                     </a>
                 </div>
@@ -199,7 +215,7 @@
                     <div class="row" id="itensCardapio">
 
 
-                        
+
 
 
                     </div>
@@ -398,11 +414,11 @@
         </div>
     </footer>
 
-    <div class="modal-full d-none" id="modalCarrinho">
+    <div class="modal-full d-none" id="modalCarrinho" >
 
         <div class="m-header">
             <div class="container">
-                <a class="btn btn-white btn-sm float-right">
+                <a class="btn btn-white btn-sm float-right" onclick="cardapio.metodos.abrirCarrinho(false)">
                     Fechar
                 </a>
                 <div class="etapas">

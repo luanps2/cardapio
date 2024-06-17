@@ -3,7 +3,14 @@ $(document).ready(function () {
 })
 
 var cardapio = {};
+
 var MEU_CARRINHO = [];
+var MEU_ENDERECO = null;
+
+var VALOR_CARRINHO = 0;
+var VALOR_ENTREGA = 5;
+
+var CELULAR_EMPRESA = '55119970270871';
 
 cardapio.eventos = {
 
@@ -228,10 +235,16 @@ cardapio.metodos = {
                     .replace(/\${qtd}/g, e.qtd);
 
                 $("#itensCarrinho").append(template);
+
+                //último item
+                if ((i + 1) == MEU_CARRINHO.length) {
+                    cardapio.metodos.carregarValores();
+                }
             })
 
         } else {
             $("#itensCarrinho").html('<p class="carrinho-vazio"><i class="fa fa-shopping-bag"></i> Seu carrinho está vazio.</p>');
+            cardapio.metodos.carregarValores();
 
         }
 
@@ -278,9 +291,207 @@ cardapio.metodos = {
 
         //atualiza o botão carrinho com a quantidade atualizada
         cardapio.metodos.atualizarbadgeTotal();
+        //atualiza os valores em (R$) totais do carrinho
+        cardapio.metodos.carregarValores();
 
     },
 
+    // carrega valores de subtotal, entrega e total
+    carregarValores: () => {
+
+        VALOR_CARRINHO = 0;
+
+        $("#lblSubTotal").text('R$ 0,00');
+        $("#lblValorEntrega").text(' + R$ 0,00');
+        $("#lblValorTotal").text('R$ 0,00');
+
+        $.each(MEU_CARRINHO, (i, elemento) => {
+            VALOR_CARRINHO += parseFloat(elemento.price * elemento.qtd);
+
+            if ((i + 1) == MEU_CARRINHO.length) {
+                $("#lblSubTotal").text(`R$ ${VALOR_CARRINHO.toFixed(2).replace('.', ',')}`);
+                $("#lblValorEntrega").text(`+ R$ ${VALOR_ENTREGA.toFixed(2).replace('.', ',')}`);
+                $("#lblValorTotal").text(`R$ ${(VALOR_CARRINHO + VALOR_ENTREGA).toFixed(2).replace('.', ',')}`);
+            }
+
+        })
+
+
+    },
+
+    //carregar a etapa endereços
+    carregarEndereco: () => {
+        if (MEU_CARRINHO.length <= 0) {
+            cardapio.metodos.mensagem('Seu carrinho está vazio.')
+            return;
+        }
+
+        cardapio.metodos.carregarEtapa(2);
+    },
+    //API viaCEP
+    buscarCEP: () => {
+        var cep = $("#txtCEP").val().trim().replace(/\D/g, '');
+
+        //verifica se o cep possui valor informado
+        if (cep != "") {
+
+            //expressão regular regex para validar CEP
+            var validaCEP = /^[0-9]{8}$/;
+
+            if (validaCEP.test(cep)) {
+
+                $.getJSON("https://viacep.com.br/ws/" + cep + "/json/?callback=?", function (dados) {
+
+                    if (!("erro" in dados)) {
+                        //Atualizar ps campos com os valores retornados
+                        $("#txtEndereco").val(dados.logradouro);
+                        $("#txtBairro").val(dados.bairro);
+                        $("#txtCidade").val(dados.localidade);
+                        $("#ddlUF").val(dados.uf);
+                        $("#txtNumero").focus();
+
+
+
+
+                    } else {
+                        cardapio.metodos.mensagem('CEP não encontrado. Preencha as informações manualmente.');
+                        $("#txtEndereco").focus();
+                    }
+
+                })
+
+            } else {
+                cardapio.metodos.mensagem('Formato do CEP inválido.')
+                $("txtCEP").focus();
+            }
+
+        } else {
+            cardapio.metodos.mensagem('Informe o CEP, por favor.');
+            $("txtCEP").focus();
+        }
+
+
+    },
+
+
+    //validação antes de prosseguir para a etapa 3
+    resumoPedido: () => {
+
+        let cep = $("#txtCEP").val().trim();
+        let endereco = $("#txtEndereco").val().trim();
+        let bairro = $("#txtBairro").val().trim();
+        let cidade = $("#txtCidade").val().trim();
+        let uf = $("#ddlUF").val().trim();
+        let numero = $("#txtNumero").val().trim();
+        let complemento = $("#txtComplemento").val().trim();
+
+        if (cep.length <= 0) {
+            cardapio.metodos.mensagem('Informe o CEP, por favor.');
+            $("#txtCEP").focus();
+            return;
+        }
+
+        if (endereco.length <= 0) {
+            cardapio.metodos.mensagem('Informe o endereço, por favor.');
+            document.getElementById("#txtEndereco").focus();
+            return;
+        }
+
+        if (bairro.length <= 0) {
+            cardapio.metodos.mensagem('Informe o bairro, por favor.');
+            $("#txtBairro").focus();
+            return;
+        }
+
+        if (cidade.length <= 0) {
+            cardapio.metodos.mensagem('Informe a cidade, por favor.');
+            $("#txtCCidade").focus();
+            return;
+        }
+
+        if (cidade.length <= 0) {
+            cardapio.metodos.mensagem('Informe a cidade, por favor.');
+            $("#txtCidade").focus();
+            return;
+        }
+
+        if (uf == "-1") {
+            cardapio.metodos.mensagem('Informe o UF, por favor.');
+            $("#ddlUF").focus();
+            return;
+        }
+
+        if (numero.length <= 0) {
+            cardapio.metodos.mensagem('Informe o número, por favor.');
+            $("#txtNumero").focus();
+            return;
+        }
+
+        MEU_ENDERECO = {
+            cep: cep,
+            endereco: endereco,
+            bairro: bairro,
+            cidade: cidade,
+            uf: uf,
+            numero: numero,
+            complemento: complemento
+        }
+
+        cardapio.metodos.carregarEtapa(3);
+        cardapio.metodos.carregarResumo();
+    },
+
+    //carrega a etapa de resumo do pedido.
+    carregarResumo: () => {
+
+        $("listaItensResumo").html('');
+
+        $.each(MEU_CARRINHO, (i, e) => {
+            let template = cardapio.templates.itemResumo.replace(/\${img}/g, e.img)
+                .replace(/\${nome}/g, e.name)
+                .replace(/\${preco}/g, e.price.toFixed(2).replace('.', ','))
+                .replace(/\${qtd}/g, e.qtd)
+
+            $("#listaItensResumo").append(template)
+        });
+
+        $("#resumoEndereco").html(`${MEU_ENDERECO.endereco}, ${MEU_ENDERECO.numero}, ${MEU_ENDERECO.bairro}`);
+        $("#cidadeEndereco").html(`${MEU_ENDERECO.cidade} - ${MEU_ENDERECO.uf} / ${MEU_ENDERECO.cep} ${MEU_ENDERECO.complemento}`);
+
+        cardapio.metodos.finalizarPedido();
+
+    },
+
+
+    //Atualiza o link do botão do whatsapp
+    finalizarPedido: () => {
+        if (MEU_CARRINHO.length > 0 && MEU_ENDERECO != null) {
+            var texto = 'Olá gostaria de fazer um pedido: ';
+            texto += `\n*Itens do pedido:*\n\n\${itens}`;
+            texto += '\n*Endereço de entrega: *'
+            texto += `\n${MEU_ENDERECO.endereco}, ${MEU_ENDERECO.numero}, ${MEU_ENDERECO.bairro}`;
+            texto += `\n${MEU_ENDERECO.cidade}-${MEU_ENDERECO.uf} / ${MEU_ENDERECO.cep} ${MEU_ENDERECO.complemento}`;
+            texto += `\n\n*Total (com entrega): R$ ${(VALOR_CARRINHO + VALOR_ENTREGA).toFixed(2).replace('.', ',')}*`;
+
+            var itens = '';
+
+            $.each(MEU_CARRINHO, (i, e) => {
+                itens += `*${e.qtd}x* ${e.name} ....... R$ ${e.price.toFixed(2).replace('.', ',')} \n`;
+
+                if ((i + 1) == MEU_CARRINHO.length) {
+
+                    texto = texto.replace(/\${itens}/g, itens);
+
+                  //converte a |URL
+                  let encode = encodeURI(texto);
+                  let URL = `https://wa.me/${CELULAR_EMPRESA}?text=${encode}`;
+
+                  $("#btnEtapaResumo").attr('href', URL);
+
+                }
+            })
+        }
+    },
 
 
     //Mensagens
@@ -323,8 +534,6 @@ cardapio.templates = {
                                     <span class="btn-mais" onclick="cardapio.metodos.aumentarQuantidade('\${id}')"><i class="fa fa-plus"></i></span>
                                     <span class="btn btn-add" onclick="cardapio.metodos.adicionarAoCarrinho('\${id}')"><i class="fa fa-shopping-bag"></i></span>
                                 </div>
-
-
                             </div>
                         </div>
 
@@ -350,7 +559,27 @@ cardapio.templates = {
                     </div>
 
 
-    `
+    `,
+
+    itemResumo: `
+    <div class="col-12 item-carrinho resumo">
+                                <div class="img-produto-resumo">
+                                    <img src="\${img}"
+                                        alt="">
+                                </div>
+                                <div class="dados-produto">
+                                    <p class="title-produto-resumo">
+                                        <b>\${nome}</b>
+                                    </p>
+                                    <p class="price-produto-resumo">
+                                        <b>\${preco}</b>
+                                    </p>
+                                </div>
+                                <p class="quantidade-produto-resumo">
+                                    x <b>\${qtd}</b>
+                                </p>
+                            </div>
+                            `
 
 
 

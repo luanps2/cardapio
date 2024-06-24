@@ -16,6 +16,8 @@ cardapio.eventos = {
 
     init: () => {
         cardapio.metodos.obterItensCardapio();
+        cardapio.metodos.carregarBotaoReserva();
+        cardapio.metodos.carregarBotaoLigar();
     }
 
 }
@@ -482,15 +484,55 @@ cardapio.metodos = {
 
                     texto = texto.replace(/\${itens}/g, itens);
 
-                  //converte a |URL
-                  let encode = encodeURI(texto);
-                  let URL = `https://wa.me/${CELULAR_EMPRESA}?text=${encode}`;
+                    //converte a |URL
+                    let encode = encodeURI(texto);
+                    let URL = `https://wa.me/${CELULAR_EMPRESA}?text=${encode}`;
 
-                  $("#btnEtapaResumo").attr('href', URL);
+                    $("#btnEtapaResumo").attr('href', URL);
 
                 }
             })
         }
+    },
+
+    //carrega o link do botão reserva
+    carregarBotaoReserva: () => {
+        var texto = 'Olá! gostaria de fazer uma *reserva*';
+
+        let encode = encodeURI(texto);
+        let URL = `https://wa.me/${CELULAR_EMPRESA}?text=${encode}`;
+
+        $("#btnReserva").attr('href', URL)
+    },
+
+    //carrega botão de ligar
+    carregarBotaoLigar: () => {
+        $("#btnLigar").attr('href', `tel:${CELULAR_EMPRESA}`);
+    },
+
+    // abre o depoimento
+    abrirDepoimento: (depoimento) => {
+
+        $("#depoimento-1").addClass('hidden');
+        $("#depoimento-2").addClass('hidden');
+        $("#depoimento-3").addClass('hidden');
+
+        $("#btnDepoimento-1").removeClass('active');
+        $("#btnDepoimento-2").removeClass('active');
+        $("#btnDepoimento-3").removeClass('active');
+
+        $("#depoimento-" + depoimento).removeClass('hidden');
+        $("#btnDepoimento-" + depoimento).addClass('active');
+
+    },
+
+    carregarBotaoWhatsapp: () => {
+        var texto = 'Olá! gostaria de saber mais sobre seus serviços';
+
+        let encode = encodeURI(texto);
+        let URL = `https://wa.me/${CELULAR_EMPRESA}?text=${encode}`;
+
+        $(".btnWhats").attr('href', URL)
     },
 
 
